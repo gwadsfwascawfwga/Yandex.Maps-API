@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QLabel
 
 SCREEN_SIZE = [600, 450]
 coordinates = input().split()
+zoom = input()
 
 class YandexMaps(QWidget):
     def __init__(self):
@@ -17,7 +18,7 @@ class YandexMaps(QWidget):
     def getImage(self):
         server_address = 'https://static-maps.yandex.ru/v1?'
         api_key = 'f3a0fe3a-b07e-4840-a1da-06f18b2ddf13'
-        ll_spn = f'll={coordinates[0]},{coordinates[1]}&spn=0.002,0.002'
+        ll_spn = f'll={coordinates[0]},{coordinates[1]}&spn={zoom},{zoom}'
         # Готовим запрос.
 
         map_request = f"{server_address}{ll_spn}&apikey={api_key}"
