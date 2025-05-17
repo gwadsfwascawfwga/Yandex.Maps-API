@@ -3,13 +3,12 @@ import os
 import configparser
 from PyQt6.QtWidgets import (QMainWindow, QMessageBox, QApplication, 
                             QLabel, QComboBox, QLineEdit, QPushButton)
-from PyQt6.QtGui import QPixmap, QGuiApplication
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt, pyqtSignal
 import requests
 
 
 class MapAPI:
-    """Класс для работы с API Яндекс.Карт"""
     def __init__(self, config_path='config.ini'):
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
@@ -93,7 +92,7 @@ class MainWindow(QMainWindow):
         self.setup_map()
         self.setup_connections()
         
-        self.current_position = {'lon': 37.620070, 'lat': 55.753630}  # Москва по умолчанию
+        self.current_position = {'lon': 37.620070, 'lat': 55.753630}
         self.zoom_level = 12
         self.map_type = 'map'
         self.postal_code = False
@@ -111,36 +110,51 @@ class MainWindow(QMainWindow):
         self.map_label.setGeometry(10, 10, 780, 450)
         self.map_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
+        # Панель управления
         self.type_combo = QComboBox(self)
         self.type_combo.addItems(['Схема', 'Спутник', 'Гибрид'])
-        self.type_combo.move(10, 470)
+        self.type_combo.setGeometry(10, 470, 120, 25)
         
         self.search_input = QLineEdit(self)
-        self.search_input.setGeometry(150, 470, 300, 25)
+        self.search_input.setGeometry(140, 470, 300, 25)
         
         self.search_btn = QPushButton("Поиск", self)
-        self.search_btn.setGeometry(460, 470, 80, 25)
+        self.search_btn.setGeometry(450, 470, 80, 25)
         
         self.postal_combo = QComboBox(self)
         self.postal_combo.addItems(['Скрыть индекс', 'Показать индекс'])
-        self.postal_combo.move(550, 470)
+        self.postal_combo.setGeometry(540, 470, 150, 25)
         
+        # Кнопка сброса
+        self.reset_btn = QPushButton("Сброс результатов", self)
+        self.reset_btn.setGeometry(10, 500, 150, 25)
+        
+        # Информационные метки
         self.address_label = QLabel("Адрес не указан", self)
-        self.address_label.setGeometry(10, 510, 780, 20)
+        self.address_label.setGeometry(10, 530, 780, 20)
         
         self.status_label = QLabel(self)
-        self.status_label.setGeometry(10, 540, 780, 20)
+        self.status_label.setGeometry(10, 560, 780, 20)
 
     def setup_map(self):
         self.temp_map_file = 'temp_map.png'
         self.map_label.setStyleSheet("border: 1px solid #999;")
-        
+
     def setup_connections(self):
         self.type_combo.currentTextChanged.connect(self.change_map_type)
         self.postal_combo.currentTextChanged.connect(self.toggle_postal_code)
         self.search_btn.clicked.connect(self.search_location)
         self.search_input.returnPressed.connect(self.search_location)
+        self.reset_btn.clicked.connect(self.reset_search_results)
         self.map_updated.connect(self.update_display)
+
+    def reset_search_results(self):
+        self.points.clear()
+        self.address_label.setText("Адрес не указан")
+        self.search_input.clear()
+        self.current_position = {'lon': 37.620070, 'lat': 55.753630}
+        self.zoom_level = 12
+        self.update_map()
 
     def change_map_type(self, map_type):
         type_mapping = {
